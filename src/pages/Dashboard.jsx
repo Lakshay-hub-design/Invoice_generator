@@ -1,4 +1,3 @@
-import { Eye } from "lucide-react";
 import BusinessForm from "../components/BusinessForm";
 import ClientForm from "../components/ClientForm";
 import Footer from "../components/Footer";
@@ -7,52 +6,54 @@ import { InvoiceNotes } from "../components/InvoiceNotes";
 import InvoicePreview from "../components/InvoicePreview";
 import { InvoiceSummary } from "../components/InvoiceSummary";
 import Navbar from "../components/Navbar";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { defaultInvoice } from "../data/defaultInvoice";
 import { generateInvoiceNumber } from "../utils/generateInvoiceNumber";
-import { generatePdf } from "../utils/generatePdf";
+import { generatePdf } from "../utils/pdfGenerate";
+import { toast } from "sonner";
+import { validateInvoice } from "../utils/validation";
 
 export default function Dashboard() {
-    const [invoice, setInvoice] = useState(() => {
-    const savedInvoice =
-        localStorage.getItem("invoice");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [invoice, setInvoice] = useState(() => {
+    const savedInvoice = localStorage.getItem("invoice");
 
     if (savedInvoice) {
-        return JSON.parse(savedInvoice);
+      return JSON.parse(savedInvoice);
     }
 
     return {
-        ...defaultInvoice,
-        invoiceNumber: generateInvoiceNumber(),
+      ...defaultInvoice,
+      invoiceNumber: generateInvoiceNumber(),
     };
-    });
+  });
 
-  const [saved, setSaved] = useState(false);
   const invoiceRef = useRef();
+  const handleGeneratePdf = async () => {
+    const error = validateInvoice(invoice);
+    
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    
+    setIsGenerating(true)
+    
+    try {
+      await generatePdf(invoice);
 
-  useEffect(() => {
-    localStorage.setItem("invoice", JSON.stringify(invoice));
-
-    setSaved(true);
-
-    const timeout = setTimeout(() => {
-      setSaved(false);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }, [invoice]);
-
-  const handleGeneratePdf =
-  async () => {
-    await generatePdf(
-      invoiceRef.current,
-      `${invoice.invoiceNumber}.pdf`
-    );
+      toast.success("Invoice generated successfully");
+    } catch (error) {
+      setIsGenerating(false)
+      toast.error("Failed to generate PDF");
+    } finally {
+      setIsGenerating(false)
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar setInvoice={setInvoice} onGeneratePdf={handleGeneratePdf} />
+      <Navbar setInvoice={setInvoice} onGeneratePdf={handleGeneratePdf} isGenerating={isGenerating}/>
 
       <main className="px-20 py-6">
         <div className="grid lg:grid-cols-[1.5fr_0.9fr] gap-8">
@@ -63,25 +64,16 @@ export default function Dashboard() {
             <InvoiceItem invoice={invoice} setInvoice={setInvoice} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <InvoiceNotes invoice={invoice} setInvoice={setInvoice} />
-              <InvoiceSummary invoice={invoice} />
+              <InvoiceSummary
+                invoice={invoice}
+                onGeneratePdf={handleGeneratePdf}
+                isGenerating={isGenerating}
+              />
             </div>
           </div>
 
           {/* Right Section */}
           <div>
-            <div className="flex justify-between p-2">
-              <div className="flex gap-1">
-                <Eye className="text-blue-800" size={21} />
-                <h4 className="font-semibold">Preview</h4>
-              </div>
-              {saved ? (
-                <span className="text-green-600 text-sm">Draft Saved</span>
-              ) : (
-                <span className="text-sm font-semibold text-gray-500">
-                  DRAFT MODE
-                </span>
-              )}
-            </div>
             <InvoicePreview invoice={invoice} ref={invoiceRef} />
           </div>
         </div>

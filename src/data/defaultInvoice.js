@@ -22,6 +22,11 @@ export const defaultInvoice = {
         price: 0,
       },
     ],
+
+    discount: {
+      type: "percentage",
+      value: 0,
+    },
   
     notes: "",
   
