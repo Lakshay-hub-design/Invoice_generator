@@ -11,7 +11,7 @@ import { defaultInvoice } from "../data/defaultInvoice";
 import { generateInvoiceNumber } from "../utils/generateInvoiceNumber";
 import { generatePdf } from "../utils/pdfGenerate";
 import { toast } from "sonner";
-import { validateInvoice } from "../utils/validation";
+import { validateInvoice } from "../utils/validateInvoice";
 
 export default function Dashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
