@@ -77,7 +77,7 @@ export default function ClientForm({ invoice, setInvoice }) {
             name="address"
             value={invoice.client.address}
             onChange={handleChange}
-            rows={4}
+            rows={2}
             placeholder="Enter full address..."
             className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
           />

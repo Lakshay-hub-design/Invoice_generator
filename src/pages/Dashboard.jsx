@@ -31,39 +31,47 @@ export default function Dashboard() {
   const invoiceRef = useRef();
   const handleGeneratePdf = async () => {
     const error = validateInvoice(invoice);
-    
+
     if (error) {
       toast.error(error);
       return;
     }
-    
-    setIsGenerating(true)
-    
+
+    setIsGenerating(true);
+
     try {
       await generatePdf(invoice);
 
       toast.success("Invoice generated successfully");
     } catch (error) {
-      setIsGenerating(false)
+      setIsGenerating(false);
       toast.error("Failed to generate PDF");
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar setInvoice={setInvoice} onGeneratePdf={handleGeneratePdf} isGenerating={isGenerating}/>
+      <Navbar
+        setInvoice={setInvoice}
+        onGeneratePdf={handleGeneratePdf}
+        isGenerating={isGenerating}
+      />
 
-      <main className="px-20 py-6">
-        <div className="grid lg:grid-cols-[1.5fr_0.9fr] gap-8">
+      <main className="px-4 sm:px-6 lg:px-10 xl:px-16 py-4 sm:py-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_0.9fr] gap-6 lg:gap-8">
           {/* Left Section */}
-          <div className="space-y-6">
+          <div className="order-2 xl:order-1 space-y-6">
             <BusinessForm invoice={invoice} setInvoice={setInvoice} />
+
             <ClientForm invoice={invoice} setInvoice={setInvoice} />
+
             <InvoiceItem invoice={invoice} setInvoice={setInvoice} />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <InvoiceNotes invoice={invoice} setInvoice={setInvoice} />
+
               <InvoiceSummary
                 invoice={invoice}
                 onGeneratePdf={handleGeneratePdf}
@@ -73,7 +81,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Section */}
-          <div>
+          <div className="order-1 xl:order-2 xl:sticky xl:top-24 h-fit">
             <InvoicePreview invoice={invoice} ref={invoiceRef} />
           </div>
         </div>
